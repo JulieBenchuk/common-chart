@@ -1,0 +1,16 @@
+{{- define "common-chart.service" -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Chart.Name }}-service
+spec:
+  selector:
+    {{- range .Values.labels }}
+    {{ .name }}: "{{ .value }}"
+    {{- end }}
+  ports:
+    - name: http
+      port: {{ .Values.port }}
+      targetPort: {{ .Values.port }}
+  type: ClusterIP
+{{- end }}

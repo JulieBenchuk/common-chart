@@ -1,0 +1,68 @@
+{{- define "common-chart.deployment" -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-deployment
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- range .Values.labels }}
+    {{ .name }}: "{{ .value }}"
+    {{- end }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- range .Values.labels }}
+      {{ .name }}: "{{ .value }}"
+      {{- end }}
+  template:
+    metadata:
+      annotations:
+        configmap-hash: {{ .Values.envs.configMap | toJson | sha256sum }}
+        secret-hash: {{ .Values.secrets | toJson | sha256sum }}
+      namespace: {{ .Release.Namespace }}
+      labels:
+        {{- range .Values.labels }}
+        {{ .name }}: "{{ .value }}"
+        {{- end }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecret }}
+      containers:
+        - name: "{{ .Chart.Name }}"
+          image: "{{ .Values.image.name }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.port }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.probes.health }}
+              port: {{ .Values.port }}
+            failureThreshold: 12
+            timeoutSeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.probes.health }}
+              port: {{ .Values.port }}
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.probes.ready }}
+              port: {{ .Values.port }}
+            periodSeconds: 10
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu | quote }}
+              memory: {{ .Values.resources.requests.memory | quote }}
+            limits:
+              cpu: {{ .Values.resources.limits.cpu | quote }}
+              memory: {{ .Values.resources.limits.memory | quote }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Chart.Name }}-config-map
+            - secretRef:
+            name: {{ .Chart.Name }}-secret
+{{- end }}
