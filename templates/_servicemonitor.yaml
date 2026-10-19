@@ -1,0 +1,19 @@
+{{- define "common-chart.servicemonitor" -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Chart.Name }}-monitor
+  namespace: {{ .Release.Namespace }}
+  labels:
+    release: {{ .Values.monitoring.release }}
+spec:
+  selector:
+    matchLabels:
+      {{- range .Values.labels }}
+      {{ .name }}: "{{ .value }}"
+      {{- end }}
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+{{- end }}
