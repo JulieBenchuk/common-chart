@@ -64,5 +64,5 @@ spec:
             - configMapRef:
                 name: {{ .Chart.Name }}-config-map
             - secretRef:
-            name: {{ .Chart.Name }}-secret
+                name: {{ .Chart.Name }}-secret
 {{- end }}

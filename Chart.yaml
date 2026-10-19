@@ -2,4 +2,4 @@ apiVersion: v2
 name: common-chart
 description: Общие шаблоны для всех приложений
 type: library        # library — чарт нельзя деплоить напрямую, только использовать как зависимость
-version: 0.1.1
+version: 0.1.2
