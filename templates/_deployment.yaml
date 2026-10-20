@@ -28,8 +28,15 @@ spec:
     spec:
       imagePullSecrets:
         - name: {{ .Values.image.pullSecret }}
+      securityContext:
+        runAsNonRoot: {{ .Values.securityContext.runAsNonRoot }}
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
       containers:
         - name: "{{ .Chart.Name }}"
+          securityContext:
+            readOnlyRootFilesystem: {{ .Values.securityContext.readOnlyRootFilesystem }}
+            allowPrivilegeEscalation: false
           image: "{{ .Values.image.name }}"
           ports:
             - name: http
